@@ -108,6 +108,64 @@ sendBotResponse(text) {
       messages: GiftedChat.append(previousState.messages, [msg])
     }));
   }    
+
+  render() {
+    let i = 0;
+    var buttonText= []
+    return (
+      <View style={{ flex: 1, backgroundColor: '#8B0000' }}>
+        <GiftedChat
+          renderCustomView = {(currentMessage)=>
+            {
+              var messages=[]
+              var j
+              buttonText.splice(0, buttonText.length);
+              messages.splice(0, buttonText.length);
+              if(currentMessage.currentMessage._id == this.state.id[i]) {
+                //console.log("button!!!")
+                //this.customView
+                currentMessage.currentMessage.buttons&&currentMessage.currentMessage.buttons.map ((button)=> {
+                  messages.push(
+                    [{
+                      _id: this.state.messages.length + 1,
+                      text: button.postback,
+                      createdAt: new Date(),
+                      user: {
+                        _id: 1,
+                        name: 'User', 
+                        avatar: 'https://frodsham.gov.uk/wp-content/uploads/2019/05/profile-photo-placeholder.jpg'
+                      }
+                    }]
+                  )
+                  buttonText.push(button.text)
+                  //console.log(messages)
+                })
+              }
+              else {
+                buttonText.push(" ")
+              }
+              console.log(buttonText)
+              j = 0;
+              return buttonText.map(text=>{
+                return (
+                  <View>
+                    {currentMessage.currentMessage._id==this.state.id[i]&&<Button title={text} onPress={() => {i++;this.onSend(messages[j]);j++}}></Button>}
+                  </View>
+                )
+              })
+          }} 
+          isCustomViewBottom={true}       
+          messages={this.state.messages}
+          onSend={messages => this.onSend(messages)}
+          user={{
+            _id: 1,
+            name: 'User', 
+            avatar: 'https://frodsham.gov.uk/wp-content/uploads/2019/05/profile-photo-placeholder.jpg'
+          }}
+        />
+      </View>
+    );
+  }
 }
 
 export default App;
