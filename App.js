@@ -40,7 +40,7 @@ class App extends Component {
     hasImage: false, 
     buttons: [],
     card: false,
-    id: [],
+    id: null,
     messages: [
       {
         _id: 1,
@@ -68,17 +68,38 @@ class App extends Component {
     );
   }
 
+  executeButton(messages = []) {
+    let message = messages[0].text;
+    Dialogflow_V2.requestQuery(
+      message,
+      result => this.handleGoogleResponse(result),
+      error => console.log(error)
+    );
+  }
   async handleGoogleResponse(result) {
 
     var text
     var buttons=[], image
-    this.setState({buttons: []})
+    var button = []
+    this.setState({buttons:[]})
     if (result.queryResult.fulfillmentMessages[0].card != undefined) {
       text = await result.queryResult.fulfillmentMessages[0].card.title+'\n'+result.queryResult.fulfillmentMessages[0].card.subtitle
       if(result.queryResult.fulfillmentMessages[0].card.buttons != undefined) {
-        buttons = await result.queryResult.fulfillmentMessages[0].card.buttons
-        this.setState({buttons: buttons})
-        this.state.id.push(this.state.messages.length+1);
+        button = result.queryResult.fulfillmentMessages[0].card.buttons
+        button.map(b=>{
+          console.log(b)
+          buttons.push({message: [{ _id: this.state.messages.length + 1,
+            text: b.postback,
+            createdAt: new Date(),
+            user: {
+              _id: 1,
+              name: 'User', 
+              avatar: 'https://frodsham.gov.uk/wp-content/uploads/2019/05/profile-photo-placeholder.jpg'
+            }
+          }], title: b.text}) 
+        })
+        
+        this.setState({buttons: buttons, id: this.state.messages.length+1})
       }
       if(result.queryResult.fulfillmentMessages[0].card.imageUri != undefined) {
         image = await result.queryResult.fulfillmentMessages[0].card.imageUri 
@@ -90,7 +111,7 @@ class App extends Component {
       text = await result.queryResult.fulfillmentMessages[0].text.text[0]
       this.sendBotResponse(text);
     }
-    
+    console.log(buttons)
 }
 
 sendBotResponse(text) {
@@ -111,45 +132,16 @@ sendBotResponse(text) {
 
   render() {
     let i = 0;
-    var buttonText= []
     return (
       <View style={{ flex: 1, backgroundColor: '#8B0000' }}>
         <GiftedChat
           renderCustomView = {(currentMessage)=>
             {
-              var messages=[]
-              var j
-              buttonText.splice(0, buttonText.length);
-              messages.splice(0, buttonText.length);
-              if(currentMessage.currentMessage._id == this.state.id[i]) {
-                //console.log("button!!!")
-                //this.customView
-                currentMessage.currentMessage.buttons&&currentMessage.currentMessage.buttons.map ((button)=> {
-                  messages.push(
-                    [{
-                      _id: this.state.messages.length + 1,
-                      text: button.postback,
-                      createdAt: new Date(),
-                      user: {
-                        _id: 1,
-                        name: 'User', 
-                        avatar: 'https://frodsham.gov.uk/wp-content/uploads/2019/05/profile-photo-placeholder.jpg'
-                      }
-                    }]
-                  )
-                  buttonText.push(button.text)
-                  //console.log(messages)
-                })
-              }
-              else {
-                buttonText.push(" ")
-              }
-              console.log(buttonText)
-              j = 0;
-              return buttonText.map(text=>{
+              return currentMessage.currentMessage.buttons&&currentMessage.currentMessage.buttons.map(button=>{
+
                 return (
                   <View>
-                    {currentMessage.currentMessage._id==this.state.id[i]&&<Button title={text} onPress={() => {i++;this.onSend(messages[j]);j++}}></Button>}
+                    {currentMessage.currentMessage._id==this.state.id&&<Button title={button.title} onPress={() => {this.executeButton(button.message)}}></Button>}
                   </View>
                 )
               })
