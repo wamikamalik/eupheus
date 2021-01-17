@@ -52,7 +52,62 @@ class App extends Component {
       }
     ]
   };
+
   
+
+  onSend(messages = []) {
+    this.setState(previousState => ({
+      messages: GiftedChat.append(previousState.messages, messages)
+    }));
+
+    let message = messages[0].text;
+    Dialogflow_V2.requestQuery(
+      message,
+      result => this.handleGoogleResponse(result),
+      error => console.log(error)
+    );
+  }
+
+  async handleGoogleResponse(result) {
+
+    var text
+    var buttons=[], image
+    this.setState({buttons: []})
+    if (result.queryResult.fulfillmentMessages[0].card != undefined) {
+      text = await result.queryResult.fulfillmentMessages[0].card.title+'\n'+result.queryResult.fulfillmentMessages[0].card.subtitle
+      if(result.queryResult.fulfillmentMessages[0].card.buttons != undefined) {
+        buttons = await result.queryResult.fulfillmentMessages[0].card.buttons
+        this.setState({buttons: buttons})
+        this.state.id.push(this.state.messages.length+1);
+      }
+      if(result.queryResult.fulfillmentMessages[0].card.imageUri != undefined) {
+        image = await result.queryResult.fulfillmentMessages[0].card.imageUri 
+        this.setState({image: image, card: true, hasImage: true})
+      }
+      this.sendBotResponse(text);
+    }
+    else {
+      text = await result.queryResult.fulfillmentMessages[0].text.text[0]
+      this.sendBotResponse(text);
+    }
+    
+}
+
+sendBotResponse(text) {
+    let msg = {
+      _id: this.state.messages.length + 1,
+      text,
+      createdAt: new Date(),
+      user: BOT_USER,
+      image: this.state.card&&this.state.hasImage?this.state.image:"",
+      buttons: this.state.buttons
+    };
+    //console.log(this.card)
+    this.setState({card:false, hasImage: false})
+    this.setState(previousState => ({
+      messages: GiftedChat.append(previousState.messages, [msg])
+    }));
+  }    
 }
 
 export default App;
