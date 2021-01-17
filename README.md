@@ -4,10 +4,10 @@ HackDavis 2021 project
 Eupheus is an informational chatbot that helps you understand all about menstruation/periods. You can ask it questions and chat about your period problems with it.
 
 ## Key features 🩸
-
-- Small talk: You can say hi and carry out simple conversation with eupheus.
-- Interactive buttons: eupheus gives you suggestions in the form of buttons to ask leading questions.
-- Information: eupheus gives you thorough, up to date information to answers all your questions.
+Here are some of eupheus' key features:
+* **Small Talk**: You can say hi and carry out simple conversations with eupheus.
+* **Interactive Buttons**: eupheus gives you suggestions in the form of buttons to ask leading questions.
+* **Information**: eupheus gives you thorough, up to date information to answers all your period-related questions.
 
 ## Tech Stack
 
