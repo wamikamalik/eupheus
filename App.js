@@ -44,7 +44,7 @@ class App extends Component {
     messages: [
       {
         _id: 1,
-        text: `Hi! I am the PERIOD bot🩸.`,
+        text: `Hi, I am the PERIOD bot🩸!`,
         createdAt: new Date(),
         user: BOT_USER,
         image: null,
